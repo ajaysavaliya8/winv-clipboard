@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Installs winv-clipboard for the current user. No sudo, no extra permissions.
 #
-#   curl -fsSL https://raw.githubusercontent.com/ajaysavaliya8/Xcopy/main/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/ajaysavaliya8/winv-clipboard/main/install.sh | bash
 #
 # downloads the prebuilt program from the latest GitHub release and installs it. Run from a clone
 # of the repository (./install.sh) it builds the program from source instead, when Rust is present.
@@ -11,7 +11,7 @@
 set -euo pipefail
 
 # GitHub "owner/name" that publishes the releases.
-REPO="ajaysavaliya8/Xcopy"
+REPO="ajaysavaliya8/winv-clipboard"
 
 have() { command -v "$1" >/dev/null 2>&1; }
 

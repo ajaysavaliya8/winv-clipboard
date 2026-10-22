@@ -5,7 +5,7 @@
 **The Windows <kbd>Win</kbd>+<kbd>V</kbd> clipboard history, for Ubuntu.**<br>
 Press <kbd>Super</kbd>+<kbd>V</kbd>, pick something you copied earlier, and it's pasted.
 
-[![Release](https://img.shields.io/github/v/release/ajaysavaliya8/Xcopy?color=7c4dff&label=release)](https://github.com/ajaysavaliya8/Xcopy/releases)
+[![Release](https://img.shields.io/github/v/release/ajaysavaliya8/winv-clipboard?color=7c4dff&label=release)](https://github.com/ajaysavaliya8/winv-clipboard/releases)
 [![Ubuntu GNOME](https://img.shields.io/badge/Ubuntu-GNOME-E95420?logo=ubuntu&logoColor=white)](#install)
 [![Written in Rust](https://img.shields.io/badge/written%20in-Rust-b7410e?logo=rust&logoColor=white)](#how-it-works)
 [![No sudo](https://img.shields.io/badge/install-no%20sudo-2ea44f)](#install)
@@ -35,7 +35,7 @@ Press <kbd>Super</kbd>+<kbd>V</kbd>, pick something you copied earlier, and it's
 One command. **No sudo, no building, no permissions to grant.**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/ajaysavaliya8/Xcopy/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/ajaysavaliya8/winv-clipboard/main/install.sh | bash
 ```
 
 That's it. Copy something, then press <kbd>Super</kbd>+<kbd>V</kbd>.
@@ -64,8 +64,8 @@ No `curl`? Use `wget -qO- <address> | bash`.
 <br>
 
 ```bash
-git clone https://github.com/ajaysavaliya8/Xcopy.git
-cd Xcopy
+git clone https://github.com/ajaysavaliya8/winv-clipboard.git
+cd winv-clipboard
 ./install.sh
 ```
 
