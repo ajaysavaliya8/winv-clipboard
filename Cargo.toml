@@ -1,0 +1,25 @@
+[package]
+name = "winv-clipboard"
+version = "1.0.0"
+edition = "2024"
+rust-version = "1.88"
+description = "Windows-style clipboard history (Super+V) for Ubuntu GNOME"
+license = "MIT"
+
+[dependencies]
+arboard = { version = "3.7.0", features = ["image-data"] }
+eframe = { version = "0.36.2", default-features = false, features = ["default_fonts", "glow", "x11"] }
+image = { version = "0.25.10", default-features = false, features = ["png"] }
+libc = "0.2"
+# Same major version as eframe uses, so the window-handle traits match.
+raw-window-handle = "0.6"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1"
+x11rb = { version = "0.14.0", features = ["randr", "xfixes", "xtest"] }
+zbus = "5"
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+strip = true

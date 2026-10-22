@@ -1,0 +1,68 @@
+name: Release
+
+# Publish a release by pushing a tag that matches the version in Cargo.toml:
+#   git tag v1.0.0 && git push origin v1.0.0
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          # Built on the oldest Ubuntu still supported, so the program runs on it and on every newer one
+          # (a binary links against the glibc it was built with, and only works with that or newer).
+          - { arch: x86_64, runner: ubuntu-22.04 }
+          - { arch: aarch64, runner: ubuntu-22.04-arm }
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup update stable
+
+      - name: The tag must match the version in Cargo.toml
+        run: |
+          version="$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -n 1)"
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "tag $GITHUB_REF_NAME does not match Cargo.toml version $version" >&2
+            exit 1
+          fi
+
+      - name: The install address must be filled in
+        run: |
+          if grep -n "YOUR-GITHUB-USER" install.sh README.md; then
+            echo "replace YOUR-GITHUB-USER with your GitHub name before releasing" >&2
+            exit 1
+          fi
+
+      - run: cargo test --locked
+      - run: cargo build --release --locked
+
+      - name: Package
+        run: |
+          asset="winv-clipboard-${{ matrix.arch }}-linux.tar.gz"
+          mkdir dist
+          tar -czf "dist/$asset" -C target/release winv-clipboard
+          (cd dist && sha256sum "$asset" > "$asset.sha256")
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: winv-clipboard-${{ matrix.arch }}
+          path: dist/*
+
+  publish:
+    needs: build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh release create "$GITHUB_REF_NAME" dist/* --title "$GITHUB_REF_NAME" --generate-notes
