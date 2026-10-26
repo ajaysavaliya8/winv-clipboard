@@ -225,6 +225,27 @@ fn bind_shortcut(command: &str) -> Result<(), String> {
     Ok(())
 }
 
+/// True when GNOME's list of custom shortcuts has lost our entry while the entry itself is still
+/// set up: something else rewrote the list (adding another shortcut can do that). An entry that
+/// was removed on purpose (no binding left, as after `uninstall`) is not touched, and neither is
+/// one the user re-bound to another key.
+fn shortcut_lost(list: &[String], binding: &str) -> bool {
+    !list.iter().any(|p| p == KEY_PATH) && !binding.trim().trim_matches('\'').is_empty()
+}
+
+/// Puts our entry back into GNOME's list if it fell out of it. Called by the service, so Super+V
+/// repairs itself. Returns whether anything was repaired.
+pub fn repair_shortcut() -> Result<bool, String> {
+    let mut list = parse_list(&gsettings(&["get", MEDIA_KEYS, "custom-keybindings"])?);
+    let binding = gsettings(&["get", &format!("{KEY_SCHEMA}:{KEY_PATH}"), "binding"])?;
+    if !shortcut_lost(&list, &binding) {
+        return Ok(false);
+    }
+    list.push(KEY_PATH.to_string());
+    gsettings(&["set", MEDIA_KEYS, "custom-keybindings", &format_list(&list)])?;
+    Ok(true)
+}
+
 // ------------------------------------------------------------------ uninstall
 
 pub fn uninstall(purge: bool) {
@@ -269,6 +290,17 @@ mod tests {
         assert_eq!(format_list(&[]), "[]");
         assert_eq!(format_list(&["a".into(), "b".into()]), "['a', 'b']");
         assert_eq!(parse_list(&format_list(&["x".into(), "y".into()])), ["x", "y"]);
+    }
+
+    #[test]
+    fn a_shortcut_that_fell_out_of_the_list_is_detected() {
+        let other = vec!["/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/".to_string()];
+        let ours = vec![KEY_PATH.to_string()];
+        assert!(shortcut_lost(&other, "'<Super>v'"), "list rewritten, entry still set up");
+        assert!(shortcut_lost(&[], "'<Super>v'"));
+        assert!(!shortcut_lost(&ours, "'<Super>v'"), "healthy");
+        assert!(!shortcut_lost(&other, "''"), "removed on purpose (uninstall): leave it");
+        assert!(shortcut_lost(&other, "'<Super><Shift>v'"), "re-bound by the user, but still dropped from the list");
     }
 
     #[test]

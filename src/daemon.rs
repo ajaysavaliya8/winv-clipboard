@@ -83,6 +83,23 @@ pub fn run() {
         paster: Mutex::new(Paster::default()),
     });
 
+    // Another program can rewrite GNOME's shortcut list and silently drop Super+V; put it back.
+    thread::spawn(|| {
+        let mut complained = false;
+        loop {
+            match crate::install::repair_shortcut() {
+                Ok(true) => log_warn!("the Super+V shortcut had dropped out of GNOME's shortcut list; restored it"),
+                Ok(false) => {}
+                Err(e) if !complained => {
+                    complained = true;
+                    log_warn!("cannot check the Super+V shortcut: {e}");
+                }
+                Err(_) => {}
+            }
+            sleep(Duration::from_secs(10 * 60));
+        }
+    });
+
     let watcher_state = state.clone();
     thread::spawn(move || {
         // The watcher must never end: without it the service would keep answering the popup but

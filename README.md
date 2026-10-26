@@ -167,6 +167,7 @@ Files in `~/.local/share/winv-clipboard/`: `winv.log` (everything, 1 day) and `w
 | `winv-clipboard: command not found` right after installing | Ubuntu adds `~/.local/bin` to your PATH at the next login. Until then use `~/.local/bin/winv-clipboard` |
 | History is empty after a restart | That is intended (see above). Pin items, or enable `keep-history` |
 | A shortcut conflicts with another app | Change or remove it in **Settings → Keyboard → Shortcuts** |
+| <kbd>Super</kbd>+<kbd>V</kbd> stopped working after you added another custom shortcut | The service notices within 10 minutes and puts it back by itself (it is logged as a warning). To fix it at once, run `winv-clipboard install` |
 
 ## 🗑️ Uninstall
 
